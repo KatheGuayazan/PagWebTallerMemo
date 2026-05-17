@@ -6,3 +6,4 @@ app.use(express.static(__dirname)); // Sirve archivos estáticos desde la carpet
 app.listen(3000, () => {
     console.log('Servidor corriendo en http://localhost:3000');
 });
+
