@@ -1,0 +1,16 @@
+{
+  "name": "firebaseweb",
+  "version": "1.0.0",
+  "description": "This a web implementation of a firebase nosql database in a node enviroment",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Memo Reyes",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "firebase": "^11.5.0",
+    "firebase-admin": "^13.2.0"
+  }
+}

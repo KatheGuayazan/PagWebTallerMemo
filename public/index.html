@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Test index</title>
+</head>
+
+<body>
+  <div>
+    <h1>Memo Adventures_Users Activity</h1>
+
+    <section>
+      <h2>Comportamiento del Usuario</h2>
+        <label for="postid">Id (Just for set):</label><br>
+        <input type="text" id="postid" name="postid" required><br><br>
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+        <label for="birthdate">Birthdate:</label><br>
+        <input type="date" id="birthdate" name="birthdate" required><br><br>
+
+        <button id="createBtn">Create (Generates new doc with ID)</button>
+        <button id="setBtn">Set (Generates or replace docs if exists)</button>
+      <p id="postSqlResult"></p>
+    </section>
+
+    <section>
+        <h1>Estadisticas de la Partida</h1>
+        <button id="getDocBtn">Mostrar Ultimas Estadisticas</button><br><br>
+
+        <label for="getDocId">Nombre</label><br>
+        <div id="Nombre" class="result-section"></div><br><br>
+
+        <label for="getDocId">ArduinosPerdidos:</label><br>
+        <div id="ArduinosPerdidos" class="result-section"></div><br><br>
+
+        <label for="getDocId">ArduinosRecolectados:</label><br>
+        <div id="ArduinosRecolectados" class="result-section"></div><br><br>
+
+        <label for="getDocId">HorasJugadas:</label><br>
+        <div id="HorasJugadas" class="result-section"></div><br><br>
+
+        <label for="getDocId">ToxicosEsquivados:</label><br>
+        <div id="ToxicosEsquivados" class="result-section"></div><br><br>
+    </section>
+
+  </div>
+
+  <script src="https://cdnjs.com/libraries/Chart.js"></script>
+  <script src="./js/main.js"></script>
+</body>
+
+</html>
