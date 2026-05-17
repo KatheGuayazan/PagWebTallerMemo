@@ -1,4 +1,2 @@
 node_modules
-env/
-.env
-.env.local
+Modules/firebase_init.js
