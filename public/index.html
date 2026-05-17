@@ -5,112 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Memo Adventures - Sistema de Partidas</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      padding: 20px;
-    }
-    
-    h1 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 30px;
-    }
-    
-    section {
-      background: white;
-      padding: 20px;
-      margin: 20px 0;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    
-    h2 {
-      color: #555;
-      margin-bottom: 15px;
-      border-bottom: 2px solid #007bff;
-      padding-bottom: 10px;
-    }
-    
-    label {
-      display: block;
-      margin: 10px 0 5px 0;
-      font-weight: bold;
-      color: #333;
-    }
-    
-    input, select {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 14px;
-    }
-    
-    button {
-      background: #007bff;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      margin: 5px 5px 5px 0;
-      transition: background 0.3s;
-    }
-    
-    button:hover {
-      background: #0056b3;
-    }
-    
-    button:active {
-      background: #003d82;
-    }
-    
-    #results {
-      margin-top: 20px;
-      padding: 15px;
-      background: #f9f9f9;
-      border-left: 4px solid #007bff;
-      border-radius: 4px;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    
-    th, td {
-      padding: 10px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    
-    th {
-      background: #007bff;
-      color: white;
-    }
-    
-    tr:hover {
-      background: #f5f5f5;
-    }
-    
-    pre {
-      background: #f5f5f5;
-      padding: 10px;
-      border-radius: 4px;
-      overflow-x: auto;
-    }
-  </style>
+  <link rel="stylesheet" href="./css/styles.css" />
 </head>
 
 <body>
@@ -125,14 +20,14 @@
     <h3>Ver todas las partidas</h3>
     <button id="loadPartidasBtn">📂 Cargar Todas las Partidas</button>
     
-    <hr style="margin: 20px 0;">
+    <hr class="divider">
     
     <h3>Seleccionar una partida</h3>
     <label for="partidaIdInput">ID de Partida (ej: IDPartida):</label>
     <input type="text" id="partidaIdInput" placeholder="Ej: IDPartida, Partida001, etc">
     <button id="selectPartidaBtn">✅ Seleccionar Partida</button>
     
-    <hr style="margin: 20px 0;">
+    <hr class="divider">
     
     <h3>Crear nueva partida</h3>
     <label for="newPartidaId">ID de Nueva Partida:</label>
@@ -147,21 +42,19 @@
   <!-- ============================================ -->
   <section>
     <h2>🎮 Comportamiento del Usuario</h2>
+    <p>Se guarda dentro del campo <strong>Comportamiento</strong> de la partida como un mapa.</p>
     
     <h3>Cargar datos</h3>
     <button id="loadComportamientoBtn">📥 Cargar Comportamiento</button>
     
-    <hr style="margin: 20px 0;">
+    <hr class="divider">
     
     <h3>Actualizar comportamiento</h3>
-    <label for="comportamientoDocId">ID del Documento (default: 0):</label>
-    <input type="text" id="comportamientoDocId" placeholder="0" value="0">
-    
     <label for="numeroSecciones">Número de Secciones:</label>
     <input type="number" id="numeroSecciones" placeholder="Ej: 5" min="0">
     
-    <label for="tiempoInstrucciones">Tiempo de Instrucciones (ms):</label>
-    <input type="number" id="tiempoInstrucciones" placeholder="Ej: 5000" min="0">
+    <label for="tiempoInstruccionesSeg">Tiempo de Instrucciones (segundos):</label>
+    <input type="number" id="tiempoInstruccionesSeg" placeholder="Ej: 1.98" min="0" step="0.01">
     
     <button id="updateComportamientoBtn">💾 Guardar Comportamiento</button>
   </section>
@@ -171,15 +64,16 @@
   <!-- ============================================ -->
   <section>
     <h2>📊 Estadística de la Partida</h2>
+    <p>Se guarda dentro del campo <strong>Estadistica</strong> de la partida como un arreglo de mapas.</p>
     
     <h3>Cargar datos</h3>
     <button id="loadEstadisticaBtn">📥 Cargar Estadística</button>
     
-    <hr style="margin: 20px 0;">
+    <hr class="divider">
     
     <h3>Actualizar estadística</h3>
-    <label for="estadisticaDocId">ID del Documento (default: 0):</label>
-    <input type="text" id="estadisticaDocId" placeholder="0" value="0">
+    <label for="estadisticaIndex">Índice del arreglo (vacío = agregar al final):</label>
+    <input type="number" id="estadisticaIndex" placeholder="Nuevo registro" min="0">
     
     <label for="arduinosPerdidos">Arduinos Perdidos:</label>
     <input type="number" id="arduinosPerdidos" placeholder="Ej: 2" min="0">
@@ -192,6 +86,12 @@
     
     <label for="estadisticaNombre">Nombre del Equipo:</label>
     <input type="text" id="estadisticaNombre" placeholder="Ej: Los rafiñas">
+
+    <label for="horaInicio">Hora Inicio:</label>
+    <input type="datetime-local" id="horaInicio">
+
+    <label for="horaFinal">Hora Final:</label>
+    <input type="datetime-local" id="horaFinal">
     
     <button id="updateEstadisticaBtn">💾 Guardar Estadística</button>
   </section>
@@ -203,7 +103,7 @@
     <!-- Los resultados se mostrarán aquí dinámicamente -->
   </section>
 
-  <script src="./js/main.js"></script>
+  <script type="module" src="./js/main.js"></script>
 </body>
 
 </html>

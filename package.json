@@ -10,6 +10,7 @@
   "author": "Memo Reyes",
   "license": "ISC",
   "dependencies": {
+    "chart.js": "^4.5.1",
     "express": "^5.1.0",
     "firebase": "^11.10.0",
     "firebase-admin": "^13.2.0"

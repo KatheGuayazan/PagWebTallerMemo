@@ -1,32 +1,65 @@
-const path = require('path');
-const admin = require('firebase-admin');
+import { db } from './firebase_init.js';
+import { collection, getDocs, getDoc, setDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-// Cargar las credenciales desde env/serviceAccountKey.json
-let serviceAccount;
-try {
-  serviceAccount = require("../env/serviceAccountKey.json");
-} catch (error) {
-  console.error("⚠️ No se encontró env/serviceAccountKey.json. Intenta cargar desde variables de entorno...");
-  // Alternativa: usar variables de entorno
-  serviceAccount = {
-    type: "service_account",
-    project_id: process.env.FIREBASE_PROJECT_ID,
-    private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-    private_key: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    client_email: process.env.FIREBASE_CLIENT_EMAIL,
-    client_id: process.env.FIREBASE_CLIENT_ID,
-  };
+export class FirestoreService {
+  constructor(collectionName = 'Sections') {
+    this.collectionRef = collection(db, collectionName);
+  }
+
+  async getAllDocuments() {
+    const snapshot = await getDocs(this.collectionRef);
+    const data = [];
+    snapshot.forEach((doc) => {
+      data.push({ id: doc.id, ...doc.data() });
+    });
+    return data;
+  }
+
+  async getDocumentById(id) {
+    const docRef = doc(this.collectionRef, id);
+    const snapshot = await getDoc(docRef);
+  
+    if (snapshot.exists()) {
+      return { id: snapshot.id, ...snapshot.data() };
+    } else {
+      return null; 
+    }
+  }
+
+  async saveDocument(customId, dataObject) {
+    const docRef = doc(this.collectionRef, customId.toString());
+    await setDoc(docRef, dataObject, { merge: true });
+    return { success: true, id: customId.toString() };
+  }
+
+  async getPartidas() {
+    return this.getAllDocuments();
+  }
+
+  async getPartidaById(partidaId) {
+    return this.getDocumentById(partidaId);
+  }
+
+  async createOrUpdatePartida(partidaId, dataObject) {
+    return this.saveDocument(partidaId, dataObject);
+  }
+
+  async getComportamiento(partidaId) {
+    const partida = await this.getPartidaById(partidaId);
+    return partida?.Comportamiento ?? {};
+  }
+
+  async updateComportamiento(partidaId, comportamientoObject) {
+    return this.saveDocument(partidaId, { Comportamiento: comportamientoObject });
+  }
+
+  async getEstadistica(partidaId) {
+    const partida = await this.getPartidaById(partidaId);
+    return partida?.Estadistica ?? [];
+  }
+
+  async updateEstadistica(partidaId, estadisticaArray) {
+    return this.saveDocument(partidaId, { Estadistica: estadisticaArray });
+  }
+  
 }
-
-// Validar que tenemos las credenciales necesarias
-if (!serviceAccount.project_id || !serviceAccount.private_key) {
-  throw new Error("❌ Error: Credenciales de Firebase no configuradas correctamente. Verifica env/serviceAccountKey.json o variables de entorno.");
-}
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount) 
-});
-
-const db = admin.firestore();
-
-module.exports = db;

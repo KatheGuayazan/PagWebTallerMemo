@@ -1,10 +1,16 @@
 // ============================================
 // Sistema de Partidas Firestore (Cliente)
-// Estructura: Sections/IDPartida/Comportamiento + Estadistica
+// Estructura real:
+// Sections/{IDPartida}
+//   - Comportamiento: map
+//   - Estadistica: array de maps
 // ============================================
 
+import { FirestoreService } from '../../Modules/firebase.service.js';
+
 let currentPartidaId = '';
-const API_BASE = 'http://localhost:3000/api';
+let currentPartidaData = null;
+const firestoreService = new FirestoreService('Sections');
 
 // ============================================
 // Funciones Auxiliares
@@ -12,126 +18,271 @@ const API_BASE = 'http://localhost:3000/api';
 
 async function apiCall(endpoint, method = 'GET', data = null) {
     try {
-        const options = {
-            method,
-            headers: { 'Content-Type': 'application/json' }
-        };
-        
-        if (data) options.body = JSON.stringify(data);
-        
-        const response = await fetch(`${API_BASE}${endpoint}`, options);
-        const result = await response.json();
-        
-        if (!response.ok) {
-            console.error(`Error: ${result.error}`);
-            alert(`Error: ${result.error}`);
-            return null;
+        const cleanEndpoint = endpoint.replace(/^\//, '');
+        const parts = cleanEndpoint.split('/').filter(Boolean);
+
+        if (parts[0] === 'partidas' && method === 'GET') {
+            return { success: true, data: await firestoreService.getPartidas() };
         }
-        
-        return result;
+
+        if (parts[0] === 'partida' && parts.length === 2 && method === 'GET') {
+            const partida = await firestoreService.getPartidaById(parts[1]);
+
+            if (!partida) {
+                return null;
+            }
+
+            return { success: true, data: partida };
+        }
+
+        if (parts[0] === 'partida' && parts.length === 1 && method === 'POST') {
+            const { partidaId, data: partidaData } = data || {};
+
+            if (!partidaId || !partidaData) {
+                throw new Error('partidaId y data son requeridos');
+            }
+
+            await firestoreService.createOrUpdatePartida(partidaId, partidaData);
+            return { success: true, message: 'Partida guardada' };
+        }
+
+        throw new Error(`Endpoint no soportado: ${method} ${endpoint}`);
     } catch (error) {
-        console.error('Error en petición API:', error);
-        alert(`Error en petición: ${error.message}`);
+        console.error('Error en Firestore:', error);
+        alert(`Error: ${error.message}`);
         return null;
     }
 }
 
-function displayResults(data, title = "Resultados") {
-    const resultContainer = document.getElementById("results") || createResultsContainer();
-    
-    if (!data) {
-        resultContainer.innerHTML = `<p style="color:red;">${title}: No hay datos</p>`;
+function createResultsContainer() {
+    const existing = document.getElementById('results');
+    if (existing) return existing;
+
+    const container = document.createElement('div');
+    container.id = 'results';
+    container.style.marginTop = '20px';
+    container.style.padding = '15px';
+    document.body.appendChild(container);
+    return container;
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+}
+
+function formatCellValue(value) {
+    if (value === null || value === undefined || value === '') {
+        return '-';
+    }
+
+    if (typeof value === 'object') {
+        return `<pre style="margin:0;white-space:pre-wrap;">${escapeHtml(JSON.stringify(value, null, 2))}</pre>`;
+    }
+
+    return escapeHtml(value);
+}
+
+function renderMapTable(title, data) {
+    const entries = Object.entries(data || {});
+
+    if (entries.length === 0) {
+        return `<h3>${escapeHtml(title)}</h3><p>Sin datos</p>`;
+    }
+
+    const rows = entries
+        .map(([key, value]) => `<tr><th>${escapeHtml(key)}</th><td>${formatCellValue(value)}</td></tr>`)
+        .join('');
+
+    return `
+        <h3>${escapeHtml(title)}</h3>
+        <table>
+            <tbody>${rows}</tbody>
+        </table>
+    `;
+}
+
+function renderArrayOfMaps(title, data) {
+    if (!Array.isArray(data) || data.length === 0) {
+        return `<h3>${escapeHtml(title)}</h3><p>Lista vacía</p>`;
+    }
+
+    const headers = new Set();
+    data.forEach(item => {
+        if (item && typeof item === 'object' && !Array.isArray(item)) {
+            Object.keys(item).forEach(key => headers.add(key));
+        }
+    });
+
+    const headerList = Array.from(headers);
+
+    if (headerList.length === 0) {
+        return `<h3>${escapeHtml(title)}</h3><pre>${escapeHtml(JSON.stringify(data, null, 2))}</pre>`;
+    }
+
+    const head = headerList.map(header => `<th>${escapeHtml(header)}</th>`).join('');
+    const body = data.map((item, index) => {
+        const row = headerList.map(header => `<td>${formatCellValue(item?.[header])}</td>`).join('');
+        return `<tr><td style="font-weight:700;">${index}</td>${row}</tr>`;
+    }).join('');
+
+    return `
+        <h3>${escapeHtml(title)}</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    ${head}
+                </tr>
+            </thead>
+            <tbody>${body}</tbody>
+        </table>
+    `;
+}
+
+function displayResults(data, title = 'Resultados') {
+    const resultContainer = document.getElementById('results') || createResultsContainer();
+
+    if (data === null || data === undefined) {
+        resultContainer.innerHTML = `<p style="color:red;">${escapeHtml(title)}: No hay datos</p>`;
         return;
     }
 
     if (Array.isArray(data)) {
-        if (data.length === 0) {
-            resultContainer.innerHTML = `<p>${title}: Lista vacía</p>`;
-            return;
-        }
-
-        let html = `<h3>${title}</h3><table border='1'><tr>`;
-        
-        const headers = new Set();
-        data.forEach(item => Object.keys(item).forEach(key => headers.add(key)));
-        
-        headers.forEach(header => html += `<th>${header}</th>`);
-        html += "</tr>";
-
-        data.forEach(item => {
-            html += "<tr>";
-            headers.forEach(header => {
-                const value = item[header];
-                const displayValue = typeof value === 'object' ? JSON.stringify(value) : (value || '-');
-                html += `<td>${displayValue}</td>`;
-            });
-            html += "</tr>";
-        });
-
-        html += "</table>";
-        resultContainer.innerHTML = html;
-    } else {
-        resultContainer.innerHTML = `<h3>${title}</h3><pre>${JSON.stringify(data, null, 2)}</pre>`;
+        resultContainer.innerHTML = renderArrayOfMaps(title, data);
+        return;
     }
+
+    if (typeof data === 'object') {
+        resultContainer.innerHTML = renderMapTable(title, data);
+        return;
+    }
+
+    resultContainer.innerHTML = `<h3>${escapeHtml(title)}</h3><p>${escapeHtml(data)}</p>`;
 }
 
-function createResultsContainer() {
-    const container = document.createElement("div");
-    container.id = "results";
-    container.style.marginTop = "20px";
-    container.style.padding = "10px";
-    container.style.border = "1px solid #ccc";
-    document.body.appendChild(container);
-    return container;
+function parseNumber(value, integer = false) {
+    if (value === '') return null;
+    const parsed = integer ? parseInt(value, 10) : parseFloat(value);
+    return Number.isNaN(parsed) ? null : parsed;
+}
+
+async function loadCurrentPartida() {
+    if (!currentPartidaId) {
+        alert('Selecciona una partida primero');
+        return null;
+    }
+
+    const result = await apiCall(`/partida/${currentPartidaId}`);
+    if (!result?.data) {
+        return null;
+    }
+
+    currentPartidaData = result.data;
+    return result.data;
+}
+
+function getComportamientoFormData() {
+    const numeroSecciones = document.getElementById('numeroSecciones').value.trim();
+    const tiempoInstruccionesSeg = document.getElementById('tiempoInstruccionesSeg').value.trim();
+
+    const currentValue = (currentPartidaData && typeof currentPartidaData.Comportamiento === 'object' && !Array.isArray(currentPartidaData.Comportamiento))
+        ? { ...currentPartidaData.Comportamiento }
+        : {};
+
+    const updates = {};
+    const secciones = parseNumber(numeroSecciones, true);
+    const tiempo = parseNumber(tiempoInstruccionesSeg, false);
+
+    if (secciones !== null) updates.NumeroSecciones = secciones;
+    if (tiempo !== null) updates.TiempoInstruccionesSeg = tiempo;
+
+    return { ...currentValue, ...updates };
+}
+
+function getEstadisticaFormData() {
+    const arduinosPerdidos = document.getElementById('arduinosPerdidos').value.trim();
+    const arduinosRecolectados = document.getElementById('arduinosRecolectados').value.trim();
+    const toxicosEsquivados = document.getElementById('toxicosEsquivados').value.trim();
+    const nombre = document.getElementById('estadisticaNombre').value.trim();
+    const horaInicio = document.getElementById('horaInicio').value.trim();
+    const horaFinal = document.getElementById('horaFinal').value.trim();
+
+    const data = {};
+
+    const perdidos = parseNumber(arduinosPerdidos, true);
+    const recolectados = parseNumber(arduinosRecolectados, true);
+    const toxicos = parseNumber(toxicosEsquivados, true);
+
+    if (perdidos !== null) data.ArduinosPerdidos = perdidos;
+    if (recolectados !== null) data.ArduinosRecolectados = recolectados;
+    if (toxicos !== null) data.ToxicosEsquivados = toxicos;
+    if (nombre) data.Nombre = nombre;
+    if (horaInicio) data.HoraInicio = new Date(horaInicio).toISOString();
+    data.HoraFinal = horaFinal ? new Date(horaFinal).toISOString() : new Date().toISOString();
+
+    return data;
 }
 
 // ============================================
 // Event Listeners - Partidas
 // ============================================
 
-if (document.getElementById("loadPartidasBtn")) {
-    document.getElementById("loadPartidasBtn").addEventListener("click", async () => {
-        const result = await apiCall("/partidas");
+const loadPartidasBtn = document.getElementById('loadPartidasBtn');
+if (loadPartidasBtn) {
+    loadPartidasBtn.addEventListener('click', async () => {
+        const result = await apiCall('/partidas');
         if (result) {
-            displayResults(result.data, "📋 Lista de Partidas");
+            displayResults(result.data, '📋 Lista de Partidas');
         }
     });
 }
 
-if (document.getElementById("selectPartidaBtn")) {
-    document.getElementById("selectPartidaBtn").addEventListener("click", async () => {
-        const input = document.getElementById("partidaIdInput");
+const selectPartidaBtn = document.getElementById('selectPartidaBtn');
+if (selectPartidaBtn) {
+    selectPartidaBtn.addEventListener('click', async () => {
+        const input = document.getElementById('partidaIdInput');
         currentPartidaId = input.value.trim();
-        
+
         if (!currentPartidaId) {
-            alert("Ingresa un ID de partida");
+            alert('Ingresa un ID de partida');
             return;
         }
-        
-        const result = await apiCall(`/Sections/${currentPartidaId}`);
-        if (result) {
-            console.log("✅ Partida seleccionada:", currentPartidaId);
+
+        const partida = await loadCurrentPartida();
+        if (partida) {
+            console.log('✅ Partida seleccionada:', currentPartidaId);
             alert(`✅ Partida seleccionada: ${currentPartidaId}`);
-            displayResults(result.data, `📂 Datos de Partida: ${currentPartidaId}`);
+            displayResults(partida, `📂 Datos de Partida: ${currentPartidaId}`);
         }
     });
 }
 
-if (document.getElementById("createPartidaBtn")) {
-    document.getElementById("createPartidaBtn").addEventListener("click", async () => {
-        const partidaId = document.getElementById("newPartidaId").value.trim();
-        const nombre = document.getElementById("newPartidaNombre").value.trim();
-        
+const createPartidaBtn = document.getElementById('createPartidaBtn');
+if (createPartidaBtn) {
+    createPartidaBtn.addEventListener('click', async () => {
+        const partidaId = document.getElementById('newPartidaId').value.trim();
+        const nombre = document.getElementById('newPartidaNombre').value.trim();
+
         if (!partidaId || !nombre) {
-            alert("Ingresa ID y nombre de la partida");
+            alert('Ingresa ID y nombre de la partida');
             return;
         }
-        
-        const result = await apiCall("/Sections", "POST", {
+
+        const result = await apiCall('/partida', 'POST', {
             partidaId,
-            data: { Nombre: nombre, FechaCreacion: new Date().toISOString() }
+            data: {
+                Nombre: nombre,
+                FechaCreacion: new Date().toISOString(),
+                Comportamiento: {},
+                Estadistica: []
+            }
         });
-        
+
         if (result) {
             alert(`✅ Partida creada: ${partidaId}`);
         }
@@ -142,47 +293,29 @@ if (document.getElementById("createPartidaBtn")) {
 // Event Listeners - Comportamiento
 // ============================================
 
-if (document.getElementById("loadComportamientoBtn")) {
-    document.getElementById("loadComportamientoBtn").addEventListener("click", async () => {
-        if (!currentPartidaId) {
-            alert("Selecciona una partida primero");
-            return;
-        }
-        
-        const result = await apiCall(`/Sections/${currentPartidaId}/comportamiento`);
-        if (result) {
-            displayResults(result.data, `🎮 Comportamiento de ${currentPartidaId}`);
-        }
+const loadComportamientoBtn = document.getElementById('loadComportamientoBtn');
+if (loadComportamientoBtn) {
+    loadComportamientoBtn.addEventListener('click', async () => {
+        const comportamiento = await firestoreService.getComportamiento(currentPartidaId);
+        displayResults(comportamiento, `🎮 Comportamiento de ${currentPartidaId}`);
     });
 }
 
-if (document.getElementById("updateComportamientoBtn")) {
-    document.getElementById("updateComportamientoBtn").addEventListener("click", async () => {
-        if (!currentPartidaId) {
-            alert("Selecciona una partida primero");
+const updateComportamientoBtn = document.getElementById('updateComportamientoBtn');
+if (updateComportamientoBtn) {
+    updateComportamientoBtn.addEventListener('click', async () => {
+        const comportamiento = getComportamientoFormData();
+
+        if (Object.keys(comportamiento).length === 0) {
+            alert('Ingresa al menos un campo para Comportamiento');
             return;
         }
-        
-        const docId = document.getElementById("comportamientoDocId").value.trim() || "0";
-        const numeroSecciones = document.getElementById("numeroSecciones").value.trim();
-        const tiempoInstrucciones = document.getElementById("tiempoInstrucciones").value.trim();
-        
-        const data = {};
-        if (numeroSecciones) data.NumeroSecciones = parseInt(numeroSecciones);
-        if (tiempoInstrucciones) data.TiempoInstrucciones = parseInt(tiempoInstrucciones);
-        
-        if (Object.keys(data).length === 0) {
-            alert("Ingresa al menos un campo");
-            return;
-        }
-        
-        const result = await apiCall(`/partida/${currentPartidaId}/comportamiento`, "POST", {
-            docId,
-            data
-        });
-        
+
+        const result = await firestoreService.updateComportamiento(currentPartidaId, comportamiento);
+
         if (result) {
-            alert(`✅ Comportamiento guardado`);
+            currentPartidaData = { ...(currentPartidaData || {}), Comportamiento: comportamiento };
+            alert('✅ Comportamiento guardado');
         }
     });
 }
@@ -191,53 +324,44 @@ if (document.getElementById("updateComportamientoBtn")) {
 // Event Listeners - Estadistica
 // ============================================
 
-if (document.getElementById("loadEstadisticaBtn")) {
-    document.getElementById("loadEstadisticaBtn").addEventListener("click", async () => {
-        if (!currentPartidaId) {
-            alert("Selecciona una partida primero");
-            return;
-        }
-        
-        const result = await apiCall(`/Sections/${currentPartidaId}/estadistica`);
-        if (result) {
-            displayResults(result.data, `📊 Estadística de ${currentPartidaId}`);
-        }
+const loadEstadisticaBtn = document.getElementById('loadEstadisticaBtn');
+if (loadEstadisticaBtn) {
+    loadEstadisticaBtn.addEventListener('click', async () => {
+        const estadistica = await firestoreService.getEstadistica(currentPartidaId);
+        displayResults(estadistica, `📊 Estadística de ${currentPartidaId}`);
     });
 }
 
-if (document.getElementById("updateEstadisticaBtn")) {
-    document.getElementById("updateEstadisticaBtn").addEventListener("click", async () => {
-        if (!currentPartidaId) {
-            alert("Selecciona una partida primero");
-            return;
+const updateEstadisticaBtn = document.getElementById('updateEstadisticaBtn');
+if (updateEstadisticaBtn) {
+    updateEstadisticaBtn.addEventListener('click', async () => {
+        const estadisticaNueva = getEstadisticaFormData();
+        const estadisticaActual = Array.isArray(currentPartidaData?.Estadistica)
+            ? currentPartidaData.Estadistica.map(item => (item && typeof item === 'object' && !Array.isArray(item) ? { ...item } : item))
+            : [];
+
+        const indexValue = document.getElementById('estadisticaIndex').value.trim();
+
+        if (indexValue === '') {
+            estadisticaActual.push(estadisticaNueva);
+        } else {
+            const index = parseInt(indexValue, 10);
+            if (Number.isNaN(index) || index < 0) {
+                alert('El índice de estadística debe ser un número válido o dejarse vacío');
+                return;
+            }
+
+            estadisticaActual[index] = {
+                ...(estadisticaActual[index] && typeof estadisticaActual[index] === 'object' && !Array.isArray(estadisticaActual[index]) ? estadisticaActual[index] : {}),
+                ...estadisticaNueva
+            };
         }
-        
-        const docId = document.getElementById("estadisticaDocId").value.trim() || "0";
-        const arduinosPerdidos = document.getElementById("arduinosPerdidos").value.trim();
-        const arduinosRecolectados = document.getElementById("arduinosRecolectados").value.trim();
-        const toxicosEsquivados = document.getElementById("toxicosEsquivados").value.trim();
-        const nombre = document.getElementById("estadisticaNombre").value.trim();
-        
-        const data = {};
-        if (arduinosPerdidos) data.ArduinosPerdidos = parseInt(arduinosPerdidos);
-        if (arduinosRecolectados) data.ArduinosRecolectados = parseInt(arduinosRecolectados);
-        if (toxicosEsquivados) data.ToxicosEsquivados = parseInt(toxicosEsquivados);
-        if (nombre) data.Nombre = nombre;
-        
-        data.HoraFinal = new Date().toISOString();
-        
-        if (Object.keys(data).length === 1) {
-            alert("Ingresa al menos un campo");
-            return;
-        }
-        
-        const result = await apiCall(`/Sections/${currentPartidaId}/estadistica`, "POST", {
-            docId,
-            data
-        });
-        
+
+        const result = await firestoreService.updateEstadistica(currentPartidaId, estadisticaActual);
+
         if (result) {
-            alert(`✅ Estadística guardada`);
+            currentPartidaData = { ...(currentPartidaData || {}), Estadistica: estadisticaActual };
+            alert('✅ Estadística guardada');
         }
     });
 }
@@ -246,16 +370,7 @@ if (document.getElementById("updateEstadisticaBtn")) {
 // Inicialización
 // ============================================
 
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("✅ Aplicación lista");
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('✅ Aplicación lista');
     createResultsContainer();
 });
-
-    document.getElementById("getHighPriority").addEventListener("click", async () => {
-        const teamId = document.getElementById("getTeamId").value.trim();
-
-        firestoreQ = new FirestoreQuery(`/${teamId}/${projectId}/${taskId}/`);
-
-        const tasks = await firestoreQ.getCriticalTasks(teamId);
-        console.log(tasks);
-    });
