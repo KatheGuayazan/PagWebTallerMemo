@@ -108,7 +108,7 @@ if (document.getElementById("selectPartidaBtn")) {
             return;
         }
         
-        const result = await apiCall(`/partida/${currentPartidaId}`);
+        const result = await apiCall(`/Sections/${currentPartidaId}`);
         if (result) {
             console.log("✅ Partida seleccionada:", currentPartidaId);
             alert(`✅ Partida seleccionada: ${currentPartidaId}`);
@@ -127,7 +127,7 @@ if (document.getElementById("createPartidaBtn")) {
             return;
         }
         
-        const result = await apiCall("/partida", "POST", {
+        const result = await apiCall("/Sections", "POST", {
             partidaId,
             data: { Nombre: nombre, FechaCreacion: new Date().toISOString() }
         });
@@ -149,7 +149,7 @@ if (document.getElementById("loadComportamientoBtn")) {
             return;
         }
         
-        const result = await apiCall(`/partida/${currentPartidaId}/comportamiento`);
+        const result = await apiCall(`/Sections/${currentPartidaId}/comportamiento`);
         if (result) {
             displayResults(result.data, `🎮 Comportamiento de ${currentPartidaId}`);
         }
@@ -198,7 +198,7 @@ if (document.getElementById("loadEstadisticaBtn")) {
             return;
         }
         
-        const result = await apiCall(`/partida/${currentPartidaId}/estadistica`);
+        const result = await apiCall(`/Sections/${currentPartidaId}/estadistica`);
         if (result) {
             displayResults(result.data, `📊 Estadística de ${currentPartidaId}`);
         }
@@ -231,7 +231,7 @@ if (document.getElementById("updateEstadisticaBtn")) {
             return;
         }
         
-        const result = await apiCall(`/partida/${currentPartidaId}/estadistica`, "POST", {
+        const result = await apiCall(`/Sections/${currentPartidaId}/estadistica`, "POST", {
             docId,
             data
         });
