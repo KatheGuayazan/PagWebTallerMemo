@@ -38,6 +38,67 @@ h1 {
   text-shadow: 0 0 18px rgba(168, 85, 247, 0.28);
 }
 
+/* Hero / portada del proyecto */
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 16px 18px;
+  margin-bottom: 18px;
+}
+.hero-inner {
+  max-width: 1100px;
+  text-align: center;
+  padding: 28px 20px;
+}
+.hero-kicker {
+  color: #a7f3d0;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.hero-title {
+  font-size: clamp(2.6rem, 7vw, 6rem);
+  line-height: 0.9;
+  margin: 6px 0 12px;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  text-shadow:
+    0 6px 30px rgba(168, 85, 247, 0.26),
+    0 0 48px rgba(139, 92, 246, 0.12);
+  font-weight: 800;
+}
+.hero-subtitle {
+  color: #e9d5ff;
+  font-size: clamp(0.95rem, 1.5vw, 1.2rem);
+  margin-bottom: 18px;
+  opacity: 0.95;
+}
+.hero-badges {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.badge {
+  display: inline-block;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(168, 85, 247, 0.12);
+  color: #f8f0ff;
+  border: 1px solid rgba(168, 85, 247, 0.26);
+  font-weight: 700;
+  font-size: 13px;
+  box-shadow: 0 8px 28px rgba(76, 29, 149, 0.12);
+}
+.badge-host {
+  background: linear-gradient(90deg, rgba(168,85,247,0.18), rgba(236,72,153,0.08));
+  border: 1px solid rgba(236,72,153,0.16);
+  text-decoration: none;
+}
+
 section {
   position: relative;
   overflow: hidden;
