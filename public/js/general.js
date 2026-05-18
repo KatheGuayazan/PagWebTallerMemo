@@ -1,8 +1,8 @@
 import {
     escapeHtml,
-    getGeneralBestScores,
     getInstructionTimeFromPartida,
     getPartidaLabel,
+    getPartidaPlayerName,
     getPlayTimesFromPartida,
     getScoreBreakdown,
     getTotalScore,
@@ -14,8 +14,25 @@ let generalTiempoChart = null;
 let generalInstruccionesChart = null;
 let generalPuntajesRadarChart = null;
 
+function getGeneralChartLabel(partida, index) {
+    const playerName = getPartidaPlayerName(partida);
+    if (playerName && playerName !== 'Sin nombre') return playerName;
+    return getPartidaLabel(partida, index);
+}
+
+function getGeneralBestScoresWithNames(partidas) {
+    const labels = partidas.map((partida, index) => getGeneralChartLabel(partida, index));
+    const dataValues = partidas.map((partida) => {
+        const estad = Array.isArray(partida?.Estadistica) ? partida.Estadistica : [];
+        if (!estad.length) return 0;
+        return estad.reduce((max, entry) => Math.max(max, getTotalScore(entry)), -Infinity) || 0;
+    });
+
+    return { labels, dataValues };
+}
+
 function renderGeneralEstadisticaChart(partidas) {
-    const { labels, dataValues } = getGeneralBestScores(partidas);
+    const { labels, dataValues } = getGeneralBestScoresWithNames(partidas);
 
     const ctx = document.getElementById('generalEstadisticaChart');
     if (!ctx) return;
@@ -45,7 +62,7 @@ function renderGeneralEstadisticaChart(partidas) {
 }
 
 function renderGeneralMejorasDonutChart(partidas) {
-    const labels = partidas.map(getPartidaLabel);
+    const labels = partidas.map((partida, index) => getGeneralChartLabel(partida, index));
     const dataValues = partidas.map((partida) => {
         const estad = Array.isArray(partida?.Estadistica) ? partida.Estadistica : [];
         return estad.length ? Math.max(...estad.map((entry) => getTotalScore(entry))) : 0;
@@ -87,7 +104,7 @@ function renderGeneralTiempoLineChart(partidas) {
         const hue = (index * 50) % 360;
 
         return {
-            label: getPartidaLabel(partida, index),
+            label: getGeneralChartLabel(partida, index),
             data: times,
             borderColor: `hsl(${hue} 70% 50%)`,
             backgroundColor: `hsl(${hue} 70% 30%)`,
@@ -112,7 +129,7 @@ function renderGeneralTiempoLineChart(partidas) {
 }
 
 function renderGeneralInstruccionesBarChart(partidas) {
-    const labels = partidas.map(getPartidaLabel);
+    const labels = partidas.map((partida, index) => getGeneralChartLabel(partida, index));
     const dataValues = partidas.map(getInstructionTimeFromPartida);
 
     const ctx = document.getElementById('generalInstruccionesChart');
@@ -154,7 +171,7 @@ function renderGeneralPuntajesRadarChart(partidas) {
 
         const hue = (index * 45) % 360;
         return {
-            label: getPartidaLabel(partida, index),
+            label: getGeneralChartLabel(partida, index),
             data: [acumulado.recolectados, acumulado.toxicos, acumulado.perdidos, acumulado.total],
             borderColor: `hsl(${hue} 75% 55%)`,
             backgroundColor: `hsl(${hue} 75% 55% / 0.2)`,
