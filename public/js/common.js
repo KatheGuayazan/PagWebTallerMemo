@@ -1,4 +1,4 @@
-import { FirestoreService } from 'Modules/firebase.service.js';
+import { FirestoreService } from '/Modules/firebase.service.js';
 
 const firestoreService = new FirestoreService('Sections');
 
