@@ -1,5 +1,7 @@
 # PagWebTallerMemo - Dashboard de Estadísticas
 
+Hosting: https://tallermemin-5796b.web.app/
+
 ## Descripción
 Este proyecto es un dashboard web que consume datos reales de Firebase Firestore (colección `Sections`) y presenta visualizaciones para analizar rendimiento y comportamiento de los jugadores en Memo Engineer .
 
