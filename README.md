@@ -30,7 +30,7 @@ Importancia:
 ### 2) Gráfica de distribución de puntajes
 Se cumple con:
 - Donut general (`generalMejorasChart`): distribución de mejores puntajes por partida.
-- Polar general (`generalPuntajesPolarChart`): distribución de magnitudes de puntaje por partida, resaltando negativas.
+- Radar general (`generalPuntajesRadarChart`): comparación por documento usando ejes de puntajes específicos acumulados (recolectados, tóxicos, perdidos y total), sin separar por intento.
 
 Importancia:
 - Muestra cómo se reparte el rendimiento global, no solo quién va primero.
@@ -72,7 +72,7 @@ Esta sección explica qué hace cada visualización y qué información importan
 | `generalMejorasChart` | Distribución general de los mejores puntajes entre todas las partidas. | Permite comparar de forma rápida qué tan repartido está el rendimiento global y si hay pocas partidas dominantes. |
 | `generalTiempoChart` | Tiempo de juego por intento, con una línea por partida. | Sirve para comparar el comportamiento temporal de varias partidas al mismo tiempo y detectar partidas más lentas o más rápidas. |
 | `generalInstruccionesChart` | Tiempo dedicado a leer instrucciones por documento. | Es una métrica de comportamiento no trivial: ayuda a entender si el jugador leyó, repasó o tuvo dificultad para comprender las instrucciones antes de jugar. |
-| `generalPuntajesPolarChart` | Puntaje comparado entre partidas con representación polar. | Permite ver diferencias entre partidas de forma compacta y detectar rápidamente valores atípicos o negativos. |
+| `generalPuntajesRadarChart` | Comparación general por documento en ejes específicos: recolectados, tóxicos, perdidos y total acumulado. | Permite ver cómo se distribuye el perfil de puntajes del juego por documento y detectar si una partida destaca por recolección, esquive, pérdidas o rendimiento total. |
 | `topRankingContainer` | Tabla de ranking global con totales acumulados por documento y nombre del jugador. | Es la vista de highscore: identifica el mejor rendimiento general y ordena a los jugadores por su desempeño acumulado. |
 
 ### Interpretación rápida de la lectura del dashboard
@@ -115,5 +115,5 @@ Puntos clave donde se actualizan/escriben datos:
 
 ## Notas
 - El dashboard está orientado a lectura y análisis.
-- Las listas de puntajes negativos se muestran en barras y polar general.
+- Las listas de puntajes negativos se muestran en barras generales.
 - El ranking resalta podio (oro, plata, bronce).

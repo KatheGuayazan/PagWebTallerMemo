@@ -4,6 +4,7 @@ import {
     getInstructionTimeFromPartida,
     getPartidaLabel,
     getPlayTimesFromPartida,
+    getScoreBreakdown,
     getTotalScore,
 } from './common.js';
 
@@ -11,7 +12,7 @@ let generalEstadisticaChart = null;
 let generalMejorasChart = null;
 let generalTiempoChart = null;
 let generalInstruccionesChart = null;
-let generalPuntajesPolarChart = null;
+let generalPuntajesRadarChart = null;
 
 function renderGeneralEstadisticaChart(partidas) {
     const { labels, dataValues } = getGeneralBestScores(partidas);
@@ -138,31 +139,47 @@ function renderGeneralInstruccionesBarChart(partidas) {
     });
 }
 
-function renderGeneralPuntajesPolarChart(partidas) {
-    const { labels, dataValues } = getGeneralBestScores(partidas);
-    const absValues = dataValues.map((value) => Math.abs(value));
+function renderGeneralPuntajesRadarChart(partidas) {
+    const radarAxes = ['Recolectados', 'Tóxicos', 'Perdidos', 'Total'];
+    const datasets = partidas.map((partida, index) => {
+        const estadistica = Array.isArray(partida?.Estadistica) ? partida.Estadistica : [];
+        const acumulado = estadistica.reduce((accumulator, entry) => {
+            const { recolectados, toxicos, perdidos, total } = getScoreBreakdown(entry);
+            accumulator.recolectados += recolectados;
+            accumulator.toxicos += toxicos;
+            accumulator.perdidos += perdidos;
+            accumulator.total += total;
+            return accumulator;
+        }, { recolectados: 0, toxicos: 0, perdidos: 0, total: 0 });
 
-    const ctx = document.getElementById('generalPuntajesPolarChart');
-    if (!ctx) return;
-    if (generalPuntajesPolarChart) generalPuntajesPolarChart.destroy();
-
-    generalPuntajesPolarChart = new Chart(ctx, {
-        type: 'polarArea',
-        data: {
-            labels,
-            datasets: [{
-                data: absValues,
-                backgroundColor: dataValues.map((value, index) => (value < 0 ? 'rgba(255,99,132,0.7)' : `hsl(${(index * 40) % 360} 70% 60%)`)),
-            }],
-        },
-        options: { responsive: true },
+        const hue = (index * 45) % 360;
+        return {
+            label: getPartidaLabel(partida, index),
+            data: [acumulado.recolectados, acumulado.toxicos, acumulado.perdidos, acumulado.total],
+            borderColor: `hsl(${hue} 75% 55%)`,
+            backgroundColor: `hsl(${hue} 75% 55% / 0.2)`,
+            borderWidth: 2,
+            pointRadius: 3,
+            fill: true,
+        };
     });
 
-    const negEl = document.getElementById('generalPolarNegativos');
-    if (negEl) {
-        const negativos = labels.filter((label, index) => dataValues[index] < 0);
-        negEl.innerHTML = negativos.length ? `<strong>Partidas con puntajes negativos:</strong> ${negativos.map(escapeHtml).join(', ')}` : '';
-    }
+    const ctx = document.getElementById('generalPuntajesRadarChart');
+    if (!ctx) return;
+    if (generalPuntajesRadarChart) generalPuntajesRadarChart.destroy();
+
+    generalPuntajesRadarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: radarAxes,
+            datasets,
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'right' } },
+            scales: { r: { beginAtZero: true } },
+        },
+    });
 }
 
 export function renderGeneralSection(partidas) {
@@ -170,5 +187,5 @@ export function renderGeneralSection(partidas) {
     renderGeneralMejorasDonutChart(partidas);
     renderGeneralTiempoLineChart(partidas);
     renderGeneralInstruccionesBarChart(partidas);
-    renderGeneralPuntajesPolarChart(partidas);
+    renderGeneralPuntajesRadarChart(partidas);
 }
