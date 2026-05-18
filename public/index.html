@@ -9,124 +9,99 @@
 </head>
 
 <body>
-  <h1>🎮 Memo Adventures - Sistema de Partidas</h1>
+  <h1>🎮 Memo Adventures - Estadísticas</h1>
 
   <!-- ============================================ -->
-  <!-- SECCIÓN: GESTIÓN DE PARTIDAS -->
+  <!-- SECCIÓN: ESTADÍSTICAS POR PARTIDA -->
   <!-- ============================================ -->
   <section>
-    <h2>📋 Gestión de Partidas</h2>
-    
-    <h3>Ver todas las partidas</h3>
-    <button id="loadPartidasBtn">📂 Cargar Todas las Partidas</button>
-    
-    <hr class="divider">
-    
-    <h3>Seleccionar una partida</h3>
-    <label for="partidaIdInput">ID de Partida (ej: IDPartida):</label>
-    <input type="text" id="partidaIdInput" placeholder="Ej: IDPartida, Partida001, etc">
-    <button id="selectPartidaBtn">✅ Seleccionar Partida</button>
-    
-    <hr class="divider">
-    
-    <h3>Crear nueva partida</h3>
-    <label for="newPartidaId">ID de Nueva Partida:</label>
-    <input type="text" id="newPartidaId" placeholder="Ej: Partida001">
-    <label for="newPartidaNombre">Nombre de Partida:</label>
-    <input type="text" id="newPartidaNombre" placeholder="Ej: Los rafiñas">
-    <button id="createPartidaBtn">➕ Crear Partida</button>
-  </section>
+    <h2>📈 Estadísticas por Partida</h2>
+    <label for="estadisticasPartidaId">ID de Partida:</label>
+    <input type="text" id="estadisticasPartidaId" placeholder="Ej: Partida001">
+    <button id="selectPartidaForStatsBtn">🔎 Seleccionar Partida</button>
 
-  <!-- ============================================ -->
-  <!-- SECCIÓN: COMPORTAMIENTO -->
-  <!-- ============================================ -->
-   
-  <section>
-    <h2>🎮 Comportamiento del Usuario</h2>
-    <p>Se guarda dentro del campo <strong>Comportamiento</strong> de la partida como un mapa.</p>
-    
-    <h3>Cargar datos</h3>
-    <button id="loadComportamientoBtn">📥 Cargar Comportamiento</button>
-    
-    <hr class="divider">
-    
-    <h3>Actualizar comportamiento</h3>
-    <label for="numeroSecciones">Número de Secciones:</label>
-    <input type="number" id="numeroSecciones" placeholder="Ej: 5" min="0">
-    
-    <label for="tiempoInstruccionesSeg">Tiempo de Instrucciones (segundos):</label>
-    <input type="number" id="tiempoInstruccionesSeg" placeholder="Ej: 1.98" min="0" step="0.01">
-    
-    <button id="updateComportamientoBtn">💾 Guardar Comportamiento</button>
-  </section>
-
-  <!-- ============================================ -->
-  <!-- SECCIÓN: ESTADÍSTICA -->
-  <!-- ============================================ -->
-  <section>
-    <h2>📊 Estadística de la Partida</h2>
-    <p>Se guarda dentro del campo <strong>Estadistica</strong> de la partida como un arreglo de mapas.</p>
-    
-    <h3>Cargar datos</h3>
-    <button id="loadEstadisticaBtn">📥 Cargar Estadística</button>
-    
-    <hr class="divider">
-    
-    <h3>Actualizar estadística</h3>
-    <label for="estadisticaIndex">Índice del arreglo (vacío = agregar al final):</label>
-    <input type="number" id="estadisticaIndex" placeholder="Nuevo registro" min="0">
-    
-    <label for="arduinosPerdidos">Arduinos Perdidos:</label>
-    <input type="number" id="arduinosPerdidos" placeholder="Ej: 2" min="0">
-    
-    <label for="arduinosRecolectados">Arduinos Recolectados:</label>
-    <input type="number" id="arduinosRecolectados" placeholder="Ej: 8" min="0">
-    
-    <label for="toxicosEsquivados">Tóxicos Esquivados:</label>
-    <input type="number" id="toxicosEsquivados" placeholder="Ej: 3" min="0">
-    
-    <label for="estadisticaNombre">Nombre del Equipo:</label>
-    <input type="text" id="estadisticaNombre" placeholder="Ej: Los rafiñas">
-
-    <label for="horaInicio">Hora Inicio:</label>
-    <input type="datetime-local" id="horaInicio">
-
-    <label for="horaFinal">Hora Final:</label>
-    <input type="datetime-local" id="horaFinal">
-    
-    <button id="updateEstadisticaBtn">💾 Guardar Estadística</button>
-  </section>
-
-  <!-- ============================================ -->
-  <!-- SECCIÓN: RESULTADOS -->
-  <!-- ============================================ -->
-  <section id="resultados-container">
-    <!-- Los resultados se mostrarán aquí dinámicamente -->
-  </section>
-
-  <section>
-    <h2>📈 Comparativa de Arduinos</h2>
-    <button id="showEstadisticaChartBtn">📊 Mostrar Gráfico Estadístico</button>
-    <button id="showMejorasChartBtn">🌀 Mostrar Gráfico de Mejoras</button>
-    <button id="showTiempoChartBtn">📈 Mostrar Tiempo de Juego</button>
-    <button id="showPuntajesRadarBtn">📡 Mostrar Puntajes Radar</button>
     <div class="charts-row">
       <div class="chart-panel">
         <canvas id="estadisticaChart" width="500" height="400"></canvas>
+        <p class="chart-desc">Gráfico de barras que muestra datos por intento: recolectados, tóxicos, perdidos y total.</p>
+        <div class="chart-action"><button id="showEstadisticaChartBtn">📊 Mostrar Estadística (último intento)</button></div>
       </div>
       <div class="chart-panel">
         <canvas id="mejorasChart" width="500" height="400"></canvas>
+        <p class="chart-desc">Donut que compara los puntajes por intento en la partida (mejoras).</p>
+        <div class="chart-action"><button id="showMejorasChartBtn">🌀 Mostrar Mejoras</button></div>
       </div>
     </div>
+
     <div class="chart-row">
       <div class="chart-panel chart-panel-full">
         <canvas id="tiempoChart" width="700" height="400"></canvas>
+        <p class="chart-desc">Línea que muestra el tiempo de juego (segundos) por intento.</p>
+        <div class="chart-action"><button id="showTiempoChartBtn">📈 Mostrar Tiempo de Juego</button></div>
+      </div>
+    </div>
+
+    <div class="chart-row">
+      <div class="chart-panel chart-panel-full">
+        <canvas id="puntajesRadarChart" width="700" height="400"></canvas>
+        <p class="chart-desc">Radar de puntajes por intento dentro de la partida.</p>
+        <div class="chart-action"><button id="showPuntajesRadarBtn">📡 Mostrar Puntajes Radar</button></div>
+      </div>
+    </div>
+
+    <div class="table-row">
+      <button id="showPartidaTableBtn">📋 Mostrar tabla de puntajes de la partida</button>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- SECCIÓN: ESTADÍSTICAS GENERALES -->
+  <!-- ============================================ -->
+  <section>
+    <h2>📊 Estadísticas Generales</h2>
+    <p class="chart-desc">Comparativa agregada entre todas las partidas.</p>
+    <button id="updateAllGeneralBtn">🔄 Actualizar todas</button>
+    <div class="charts-row">
+      <div class="chart-panel">
+        <canvas id="generalEstadisticaChart" width="500" height="400"></canvas>
+        <p class="chart-desc">Mejor puntaje por partida (las barras negativas se muestran en rojo).</p>
+        <div id="generalEstadisticaNegativos" class="negativos-list"></div>
+      </div>
+      <div class="chart-panel">
+        <canvas id="generalMejorasChart" width="500" height="400"></canvas>
+        <p class="chart-desc">Distribución de los mejores puntajes por partida (donut).</p>
       </div>
     </div>
     <div class="chart-row">
       <div class="chart-panel chart-panel-full">
-        <canvas id="puntajesRadarChart" width="700" height="400"></canvas>
+        <canvas id="generalTiempoChart" width="700" height="400"></canvas>
+        <p class="chart-desc">Tiempos de juego por intento, una línea por partida (partidas con puntaje negativo excluidas).</p>
       </div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-panel chart-panel-full">
+        <canvas id="generalInstruccionesChart" width="700" height="400"></canvas>
+        <p class="chart-desc">Comparación del tiempo de lectura de instrucciones (segundos) por documento.</p>
+      </div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-panel">
+        <canvas id="generalPuntajesPolarChart" width="500" height="400"></canvas>
+        <p class="chart-desc">Polar mostrando valores absolutos de puntaje por partida; lista de negativas abajo.</p>
+        <div id="generalPolarNegativos" class="negativos-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================ -->
+  <!-- SECCIÓN: RANKING GENERAL / TOP -->
+  <!-- ============================================ -->
+  <section>
+    <h2>🏆 Ranking General / Top de Puntajes</h2>
+    <p class="chart-desc">Ordena todos los intentos por puntaje, sin mostrar horas, y conserva los totales por partida.</p>
+    <button id="updateTopRankingBtn">🔄 Actualizar ranking</button>
+    <div id="topRankingContainer" class="ranking-container">
+      <p class="ranking-empty">Pulsa el botón para cargar el top general.</p>
     </div>
   </section>
 
