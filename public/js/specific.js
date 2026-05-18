@@ -97,8 +97,17 @@ function renderPuntajesRadarChartForCurrent() {
     const estadistica = Array.isArray(currentPartidaData?.Estadistica) ? currentPartidaData.Estadistica : [];
     if (!estadistica.length) return;
 
-    const labels = estadistica.map((_, index) => `Intento ${index + 1}`);
-    const dataValues = estadistica.map((entry) => getTotalScore(entry));
+    const acumulado = estadistica.reduce((accumulator, entry) => {
+        const { recolectados, toxicos, perdidos, total } = getScoreBreakdown(entry);
+        accumulator.recolectados += recolectados;
+        accumulator.toxicos += toxicos;
+        accumulator.perdidos += perdidos;
+        accumulator.total += total;
+        return accumulator;
+    }, { recolectados: 0, toxicos: 0, perdidos: 0, total: 0 });
+
+    const labels = ['Recolectados', 'Tóxicos', 'Perdidos', 'Total'];
+    const dataValues = [acumulado.recolectados, acumulado.toxicos, acumulado.perdidos, acumulado.total];
 
     const ctx = document.getElementById('puntajesRadarChart');
     if (!ctx) return;
@@ -106,7 +115,7 @@ function renderPuntajesRadarChartForCurrent() {
 
     radarChart = new Chart(ctx, {
         type: 'radar',
-        data: { labels, datasets: [{ label: 'Puntaje por Intento', data: dataValues }] },
+        data: { labels, datasets: [{ label: 'Puntajes Específicos Acumulados', data: dataValues }] },
         options: { responsive: true },
     });
 }

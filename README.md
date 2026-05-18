@@ -44,7 +44,7 @@ Este dashboard tiene más de dos visualizaciones adicionales:
 - Barras por partida específica (`estadisticaChart`): desglose de recolectados, tóxicos, perdidos y total.
 - Donut por partida (`mejorasChart`).
 - Línea por partida (`tiempoChart`).
-- Radar por partida (`puntajesRadarChart`).
+- Radar por partida (`puntajesRadarChart`) con ejes de puntajes específicos acumulados (recolectados, tóxicos, perdidos y total).
 
 Importancia de la gráfica de tiempo de instrucciones:
 - Mide una métrica de comportamiento no trivial (lectura/comprensión previa).
@@ -67,7 +67,7 @@ Esta sección explica qué hace cada visualización y qué información importan
 | `estadisticaChart` | Desglose de una partida en un intento específico: recolectados, tóxicos, perdidos y total. | Permite ver con precisión cómo se compuso el puntaje en un intento puntual y detectar si el resultado fue bueno por recolección, por esquive o afectado por pérdidas. |
 | `mejorasChart` | Distribución de puntajes de los intentos de una misma partida. | Ayuda a observar si el jugador fue mejorando, si tuvo un pico aislado o si su rendimiento fue estable durante la sesión. |
 | `tiempoChart` | Evolución del tiempo de juego por intento dentro de una partida. | Sirve para comparar rapidez entre intentos y detectar si el jugador acelera, se detiene o mantiene un ritmo constante. |
-| `puntajesRadarChart` | Comparación de puntajes por intento dentro de una partida. | Resume el perfil de la sesión de forma visual y permite detectar patrones de rendimiento por intento. |
+| `puntajesRadarChart` | Comparación de puntajes específicos acumulados de la partida: recolectados, tóxicos, perdidos y total. | Resume el perfil de la partida en un solo radar y permite identificar si el desempeño estuvo impulsado por recolección, esquive, pérdidas o por el total final. |
 | `generalEstadisticaChart` | Mejor puntaje de cada documento/partida. | Es la comparación principal entre jugadores o sesiones; muestra quién alcanzó el mejor resultado global. |
 | `generalMejorasChart` | Distribución general de los mejores puntajes entre todas las partidas. | Permite comparar de forma rápida qué tan repartido está el rendimiento global y si hay pocas partidas dominantes. |
 | `generalTiempoChart` | Tiempo de juego por intento, con una línea por partida. | Sirve para comparar el comportamiento temporal de varias partidas al mismo tiempo y detectar partidas más lentas o más rápidas. |
