@@ -82,6 +82,34 @@ table {
   margin-top: 10px;
 }
 
+.chart-row,
+.charts-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.chart-panel {
+  flex: 1 1 320px;
+  min-width: 280px;
+  background: #fafafa;
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.chart-panel-full {
+  flex: 1 1 100%;
+  min-width: 100%;
+}
+
+.chart-panel canvas {
+  width: 100% !important;
+  height: auto !important;
+}
+
 th,
 td {
   padding: 10px;

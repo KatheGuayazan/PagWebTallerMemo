@@ -40,6 +40,7 @@
   <!-- ============================================ -->
   <!-- SECCIÓN: COMPORTAMIENTO -->
   <!-- ============================================ -->
+   
   <section>
     <h2>🎮 Comportamiento del Usuario</h2>
     <p>Se guarda dentro del campo <strong>Comportamiento</strong> de la partida como un mapa.</p>
@@ -103,6 +104,33 @@
     <!-- Los resultados se mostrarán aquí dinámicamente -->
   </section>
 
+  <section>
+    <h2>📈 Comparativa de Arduinos</h2>
+    <button id="showEstadisticaChartBtn">📊 Mostrar Gráfico Estadístico</button>
+    <button id="showMejorasChartBtn">🌀 Mostrar Gráfico de Mejoras</button>
+    <button id="showTiempoChartBtn">📈 Mostrar Tiempo de Juego</button>
+    <button id="showPuntajesRadarBtn">📡 Mostrar Puntajes Radar</button>
+    <div class="charts-row">
+      <div class="chart-panel">
+        <canvas id="estadisticaChart" width="500" height="400"></canvas>
+      </div>
+      <div class="chart-panel">
+        <canvas id="mejorasChart" width="500" height="400"></canvas>
+      </div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-panel chart-panel-full">
+        <canvas id="tiempoChart" width="700" height="400"></canvas>
+      </div>
+    </div>
+    <div class="chart-row">
+      <div class="chart-panel chart-panel-full">
+        <canvas id="puntajesRadarChart" width="700" height="400"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
   <script type="module" src="./js/main.js"></script>
 </body>
 
