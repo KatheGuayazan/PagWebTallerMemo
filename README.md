@@ -58,6 +58,31 @@ Se cumple porque el frontend consulta Firestore real en cada actualización:
 
 No hay datos estáticos pre-cargados en el dashboard: los gráficos y tablas se regeneran desde la data actual de la base.
 
+## Detalle de gráficas y valor analítico
+
+Esta sección explica qué hace cada visualización y qué información importante aporta al análisis del juego.
+
+| Gráfica | Qué muestra | Información importante que aporta |
+|---|---|---|
+| `estadisticaChart` | Desglose de una partida en un intento específico: recolectados, tóxicos, perdidos y total. | Permite ver con precisión cómo se compuso el puntaje en un intento puntual y detectar si el resultado fue bueno por recolección, por esquive o afectado por pérdidas. |
+| `mejorasChart` | Distribución de puntajes de los intentos de una misma partida. | Ayuda a observar si el jugador fue mejorando, si tuvo un pico aislado o si su rendimiento fue estable durante la sesión. |
+| `tiempoChart` | Evolución del tiempo de juego por intento dentro de una partida. | Sirve para comparar rapidez entre intentos y detectar si el jugador acelera, se detiene o mantiene un ritmo constante. |
+| `puntajesRadarChart` | Comparación de puntajes por intento dentro de una partida. | Resume el perfil de la sesión de forma visual y permite detectar patrones de rendimiento por intento. |
+| `generalEstadisticaChart` | Mejor puntaje de cada documento/partida. | Es la comparación principal entre jugadores o sesiones; muestra quién alcanzó el mejor resultado global. |
+| `generalMejorasChart` | Distribución general de los mejores puntajes entre todas las partidas. | Permite comparar de forma rápida qué tan repartido está el rendimiento global y si hay pocas partidas dominantes. |
+| `generalTiempoChart` | Tiempo de juego por intento, con una línea por partida. | Sirve para comparar el comportamiento temporal de varias partidas al mismo tiempo y detectar partidas más lentas o más rápidas. |
+| `generalInstruccionesChart` | Tiempo dedicado a leer instrucciones por documento. | Es una métrica de comportamiento no trivial: ayuda a entender si el jugador leyó, repasó o tuvo dificultad para comprender las instrucciones antes de jugar. |
+| `generalPuntajesPolarChart` | Puntaje comparado entre partidas con representación polar. | Permite ver diferencias entre partidas de forma compacta y detectar rápidamente valores atípicos o negativos. |
+| `topRankingContainer` | Tabla de ranking global con totales acumulados por documento y nombre del jugador. | Es la vista de highscore: identifica el mejor rendimiento general y ordena a los jugadores por su desempeño acumulado. |
+
+### Interpretación rápida de la lectura del dashboard
+
+- Si una partida tiene una barra alta en `generalEstadisticaChart`, esa sesión logró un mejor rendimiento acumulado.
+- Si `generalInstruccionesChart` muestra tiempos altos, puede significar que el jugador necesitó más tiempo para comprender el juego o que releyó las reglas.
+- Si `generalTiempoChart` muestra una línea ascendente, el jugador tardó más en intentos posteriores; si desciende, ganó velocidad.
+- Si `mejorasChart` y `generalMejorasChart` muestran mucha variación, hay sesiones con picos de rendimiento y otras más inestables.
+- Si el ranking general concentra pocos documentos arriba, el sistema muestra claramente los mejores jugadores y sus totales.
+
 ## Flujo de datos Unity -> Firestore -> Dashboard
 
 El juego en Unity escribe datos en Firestore, y este dashboard los lee para visualizarlos.

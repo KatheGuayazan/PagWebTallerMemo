@@ -45,10 +45,29 @@ function renderMejorasDonutChartForCurrent() {
 
     if (!mejorasData.length) return;
     const labels = mejorasData.map((data) => data.label);
-    const dataValues = mejorasData.map((data) => Math.max(0, data.value));
+    const rawValues = mejorasData.map((data) => data.value);
+    const hasNegativeValues = rawValues.some((value) => value < 0);
 
     const ctx = document.getElementById('mejorasChart');
     if (!ctx) return;
+
+    if (hasNegativeValues) {
+        if (mejorasChart) {
+            mejorasChart.destroy();
+            mejorasChart = null;
+        }
+
+        const context = ctx.getContext('2d');
+        context.clearRect(0, 0, ctx.width, ctx.height);
+        context.fillStyle = '#f3e8ff';
+        context.font = '600 16px Inter, sans-serif';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText('No se puede visualizar porque hay data negativa.', ctx.width / 2, ctx.height / 2);
+        return;
+    }
+
+    const dataValues = rawValues.map((value) => Math.max(0, value));
     if (mejorasChart) mejorasChart.destroy();
 
     mejorasChart = new Chart(ctx, {

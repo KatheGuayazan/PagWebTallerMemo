@@ -27,7 +27,7 @@ function renderGeneralEstadisticaChart(partidas) {
             datasets: [{
                 label: 'Mejor puntaje por Partida',
                 data: dataValues,
-                backgroundColor: dataValues.map((value) => (value < 0 ? 'rgba(255,99,132,0.7)' : 'rgba(54,162,235,0.7)')),
+                backgroundColor: 'rgba(54,162,235,0.7)',
             }],
         },
         options: {
